@@ -32,12 +32,16 @@ module RCat
 
     def initialize(printer, options = {})
       @printer = printer
-      @only_significant = options[:mode] == :significant_lines
+      @mode = options[:mode]
       @line_number = 1
     end
 
+    def only_significant?
+      @mode == :significant_lines
+    end
+
     def print_line(line)
-      if blank_line?(line) && @only_significant
+      if blank_line?(line) && only_significant?
         @printer.print_line(line)
       else
         @printer.print_line("#{@line_number.to_s.rjust(6)}\t#{line}" )
@@ -54,14 +58,8 @@ module RCat
 
     def create_printer
       printer = LinePrinter.new
-
-      if @line_numbering_style
-        printer = LineNumberer.new(printer, :mode => @line_numbering_style)
-      end
-
-      if @squeeze_extra_newlines
-        printer = ExtraNewlineSqueezer.new(printer)
-      end
+      printer = LineNumberer.new(printer, :mode => @line_numbering_style) if @line_numbering_style
+      printer = ExtraNewlineSqueezer.new(printer) if @squeeze_extra_newlines
       printer
     end
 
@@ -72,5 +70,4 @@ module RCat
       end
     end
   end
-
 end
