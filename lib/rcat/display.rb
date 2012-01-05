@@ -20,15 +20,8 @@ module RCat
   end
   
   class ExtraNewlineSqueezer < PrinterDecorator
-    def initialize(printer)
-      super
-      @prev_line_blank = false
-    end
-
     def print_line(line)
-      unless @prev_line_blank && blank_line?(line)
-        super
-      end
+      super unless @prev_line_blank && blank_line?(line)
       @prev_line_blank = blank_line?(line)
     end
   end
