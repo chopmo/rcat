@@ -1,8 +1,8 @@
 module RCat
   class NumberingLineRenderer
-    def initialize(display, number_pred)
+    def initialize(display, print_if)
       @display = display
-      @number_pred = number_pred
+      @print_if = print_if
       reset
     end
 
@@ -12,7 +12,7 @@ module RCat
 
     def render_line(lines)
       current_line = lines.next
-      if @number_pred.call(current_line)
+      if @print_if.call(current_line)
         print_labeled_line(current_line)
       else
         print_unlabeled_line(current_line)

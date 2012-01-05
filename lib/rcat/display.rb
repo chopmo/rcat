@@ -11,9 +11,8 @@ module RCat
       if @line_numbering_style == :none
         @renderer = LineRenderer.new(self)
       else
-        print_all = @line_numbering_style == :all_lines
-        number_pred = ->(l) { print_all || !l.chomp.empty? }
-        @renderer = NumberingLineRenderer.new(self, number_pred)
+        print_if = ->(l) { (@line_numbering_style == :all_lines) || !l.chomp.empty? }
+        @renderer = NumberingLineRenderer.new(self, print_if)
       end
       
       @renderer.extend(ExtraLineSqueezer) if @squeeze_extra_newlines
