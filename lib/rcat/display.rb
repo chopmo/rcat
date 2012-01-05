@@ -6,6 +6,7 @@ module RCat
     end
 
     def reset
+      # Nothing to do
     end
 
     def render_line(lines)
@@ -26,9 +27,7 @@ module RCat
 
     def render_line(lines)
       current_line = lines.next 
-      current_line_is_blank = current_line.chomp.empty?
-
-      if @only_significant && current_line_is_blank
+      if @only_significant && current_line.chomp.empty?
         print_unlabeled_line(current_line)
       else
         print_labeled_line(current_line)
