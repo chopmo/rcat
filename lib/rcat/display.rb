@@ -14,10 +14,12 @@ module RCat
     end
   end
 
+  
+  
   class NumberingLineRenderer
-    def initialize(display, only_significant = false)
+    def initialize(display, number_pred)
       @display = display
-      @only_significant = only_significant
+      @number_pred = number_pred
       reset
     end
 
@@ -26,11 +28,11 @@ module RCat
     end
 
     def render_line(lines)
-      current_line = lines.next 
-      if @only_significant && current_line.chomp.empty?
-        print_unlabeled_line(current_line)
-      else
+      current_line = lines.next
+      if @number_pred.call(current_line)
         print_labeled_line(current_line)
+      else
+        print_unlabeled_line(current_line)
       end
     end
 
@@ -60,14 +62,13 @@ module RCat
       @line_numbering_style   = params[:line_numbering_style]
       @squeeze_extra_newlines = params[:squeeze_extra_newlines]
 
-      @renderer = case @line_numbering_style
-                  when :all_lines
-                    NumberingLineRenderer.new(self)
-                  when :significant_lines
-                    NumberingLineRenderer.new(self, :only_significant)
-                  when :none
-                    LineRenderer.new(self)
-                  end
+      if @line_numbering_style == :none
+        @renderer = LineRenderer.new(self)
+      else
+        print_all = @line_numbering_style == :all_lines
+        number_pred = ->(l) { print_all || !l.chomp.empty? }
+        @renderer = NumberingLineRenderer.new(self, number_pred)
+      end
       
       @renderer.extend(ExtraLineSqueezer) if @squeeze_extra_newlines
     end
