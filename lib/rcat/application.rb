@@ -2,7 +2,6 @@ module RCat
   class Application
     def initialize(argv)
       @params, @files = parse_options(argv)
-
       @display        = RCat::Display.new(@params)
     end
 
@@ -14,6 +13,9 @@ module RCat
           File.open(filename) { |f| @display.render(f) }
         end 
       end
+    rescue Errno::ENOENT => err
+      STDERR.puts "rcat: #{err.message}"
+      exit(1)
     end
 
     def parse_options(argv)
@@ -27,6 +29,10 @@ module RCat
       files = parser.parse(argv)
 
       [params, files]
+    rescue OptionParser::InvalidOption => err
+      STDERR.puts "rcat: #{err.message}"
+      STDERR.puts "usage: rcat [-bns] [file ...]"
+      exit(1)
     end
   end
 end
