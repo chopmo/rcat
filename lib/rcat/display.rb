@@ -76,14 +76,10 @@ module RCat
     def render(data)
       @renderer.reset
       lines = data.lines # needed why?
-      loop { render_line(lines) }
+      loop { @renderer.render_line(lines) }
     end
 
     attr_reader :line_numbering_style, :squeeze_extra_newlines, :line_number
-
-    def render_line(lines)
-      @renderer.render_line(lines)
-    end
 
     def print_labeled_line(line, line_number)
       print "#{line_number.to_s.rjust(6)}\t#{line}" 
