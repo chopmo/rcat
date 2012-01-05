@@ -11,27 +11,37 @@ module RCat
     end
   end
 
-  class ExtraNewlineSqueezer
+  class PrinterDecorator
+    def initialize(printer)
+      @printer = printer
+    end
+
+    def print_line(line)
+      @printer.print_line(line)
+    end
+  end
+  
+  class ExtraNewlineSqueezer < PrinterDecorator
     include Utils
 
     def initialize(printer)
-      @printer = printer
+      super
       @prev_line_blank = false
     end
 
     def print_line(line)
       unless @prev_line_blank && blank_line?(line)
-        @printer.print_line(line)
+        super
       end
       @prev_line_blank = blank_line?(line)
     end
   end
 
-  class LineNumberer
+  class LineNumberer < PrinterDecorator
     include Utils
 
     def initialize(printer, options = {})
-      @printer = printer
+      super(printer)
       @mode = options[:mode]
       @line_number = 1
     end
@@ -48,7 +58,7 @@ module RCat
         @line_number += 1
       end
 
-      @printer.print_line(formatted_line)
+      super(formatted_line)
     end
   end
   
