@@ -14,6 +14,10 @@ working_dir = File.dirname(__FILE__)
 gettysburg_file = "#{working_dir}/data/gettysburg.txt"
 spaced_file     = "#{working_dir}/data/spaced_out.txt"
 
+# make sure rcat is in the PATH
+ENV["PATH"] = [File.join(working_dir, "bin"), ENV["PATH"]].compact.join(":")
+
+
 ############################################################################
 
 cat_output  = `cat #{gettysburg_file}`

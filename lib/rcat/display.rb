@@ -1,57 +1,72 @@
 module RCat
+  class LinePrinter
+    def print_line(line)
+      print line
+    end
+  end
+
+  class PrinterDecorator
+    def initialize(printer)
+      @printer = printer
+    end
+
+    def print_line(line)
+      @printer.print_line(line)
+    end
+
+    def blank_line?(line)
+      line.chomp.empty?
+    end
+  end
+  
+  class ExtraNewlineSqueezer < PrinterDecorator
+    def print_line(line)
+      super unless @prev_line_blank && blank_line?(line)
+      @prev_line_blank = blank_line?(line)
+    end
+  end
+
+  class LineNumberer < PrinterDecorator
+    def initialize(printer, options = {})
+      super(printer)
+      @mode = options[:mode]
+      @line_number = 1
+    end
+
+    def only_significant?
+      @mode == :significant_lines
+    end
+
+    def print_line(line)
+      formatted_line = line
+      
+      unless blank_line?(line) && only_significant?
+        formatted_line = "#{@line_number.to_s.rjust(6)}\t#{formatted_line}"
+        @line_number += 1
+      end
+
+      super(formatted_line)
+    end
+  end
+  
   class Display
     def initialize(params)
       @line_numbering_style   = params[:line_numbering_style]
       @squeeze_extra_newlines = params[:squeeze_extra_newlines]
     end
 
+    def create_printer
+      printer = LinePrinter.new
+      printer = LineNumberer.new(printer, :mode => @line_numbering_style) if @line_numbering_style
+      printer = ExtraNewlineSqueezer.new(printer) if @squeeze_extra_newlines
+      printer
+    end
+
     def render(data)
-      @line_number = 1
-
-      lines = data.lines
-      loop { render_line(lines) }
-    end
-
-    private
-
-    attr_reader :line_numbering_style, :squeeze_extra_newlines, :line_number
-
-    def render_line(lines)
-      current_line = lines.next 
-      current_line_is_blank = current_line.chomp.empty?
-
-      case line_numbering_style
-      when :all_lines
-        print_labeled_line(current_line)
-        increment_line_number  
-      when :significant_lines
-        if current_line_is_blank
-          print_unlabeled_line(current_line)
-          # skip incrementing line number, want to only count significant lines
-        else
-          print_labeled_line(current_line)
-          increment_line_number
-        end
-      else
-        print_unlabeled_line(current_line)
-        increment_line_number
+      printer = create_printer
+      data.lines.each do |line|
+        printer.print_line(line)
       end
-
-      if squeeze_extra_newlines && current_line_is_blank
-         lines.next while lines.peek.chomp.empty?
-      end
-    end
-
-    def print_labeled_line(line)
-      print "#{line_number.to_s.rjust(6)}\t#{line}" 
-    end
-
-    def print_unlabeled_line(line)
-      print line
-    end
-
-    def increment_line_number
-      @line_number += 1
     end
   end
 end
