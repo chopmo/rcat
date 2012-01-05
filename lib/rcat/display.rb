@@ -1,10 +1,4 @@
 module RCat
-  module Utils
-    def blank_line?(line)
-      line.chomp.empty?
-    end
-  end
-
   class LinePrinter
     def print_line(line)
       print line
@@ -19,11 +13,13 @@ module RCat
     def print_line(line)
       @printer.print_line(line)
     end
+
+    def blank_line?(line)
+      line.chomp.empty?
+    end
   end
   
   class ExtraNewlineSqueezer < PrinterDecorator
-    include Utils
-
     def initialize(printer)
       super
       @prev_line_blank = false
@@ -38,8 +34,6 @@ module RCat
   end
 
   class LineNumberer < PrinterDecorator
-    include Utils
-
     def initialize(printer, options = {})
       super(printer)
       @mode = options[:mode]
