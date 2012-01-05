@@ -24,6 +24,8 @@ module RCat
         parser.on("-s") { params[:squeeze_extra_newlines] = true               }
       end.parse(argv)
 
+      params[:line_numbering_style] ||= :none
+      
       [params, files]
     end
   end
