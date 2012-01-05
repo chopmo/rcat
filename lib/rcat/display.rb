@@ -41,12 +41,14 @@ module RCat
     end
 
     def print_line(line)
-      if blank_line?(line) && only_significant?
-        @printer.print_line(line)
-      else
-        @printer.print_line("#{@line_number.to_s.rjust(6)}\t#{line}" )
+      formatted_line = line
+      
+      unless blank_line?(line) && only_significant?
+        formatted_line = "#{@line_number.to_s.rjust(6)}\t#{formatted_line}"
         @line_number += 1
       end
+
+      @printer.print_line(formatted_line)
     end
   end
   
